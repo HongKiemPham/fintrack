@@ -1,0 +1,24 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.rsuser
+
+# Build output
+bin/
+obj/
+
+# VS Code
+.vscode/
+
+# JetBrains Rider
+.idea/
+
+# Test results
+TestResults/
+
+# Logs
+*.log
+
+# Local configuration (không commit secret)
+appsettings.Development.json
