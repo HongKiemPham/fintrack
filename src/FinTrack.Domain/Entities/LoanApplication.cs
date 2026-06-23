@@ -47,27 +47,39 @@ public class LoanApplication : AuditableEntity
     public int? CreditScore { get; private set; }
     public LoanStatus Status { get; private set; }
     public string? ReviewNote { get; private set; }
+    public DateTimeOffset? ApprovedAt { get; private set; }
+    public DateTimeOffset? RejectedAt { get; private set; }
+    public Guid? ReviewedByUserId { get; private set; }
 
-    public void Approve(string? reviewNote)
+    public void Approve(Guid financeOfficerId, string? reviewNote)
     {
         if (Status != LoanStatus.Pending)
-            throw new InvalidOperationException("Only pending loan can be approved.");
+            throw new InvalidOperationException(
+                "Only pending loan can be approved.");
 
         Status = LoanStatus.Approved;
         ReviewNote = reviewNote;
+        ReviewedByUserId = financeOfficerId;
+        ApprovedAt = DateTimeOffset.UtcNow;
+
         MarkAsUpdated();
     }
 
-    public void Reject(string reviewNote)
+    public void Reject(Guid financeOfficerId, string reviewNote)
     {
         if (Status != LoanStatus.Pending)
-            throw new InvalidOperationException("Only pending loan can be rejected.");
+            throw new InvalidOperationException(
+                "Only pending loan can be rejected.");
 
         if (string.IsNullOrWhiteSpace(reviewNote))
-            throw new ArgumentException("Reject reason is required.");
+            throw new ArgumentException(
+                "Reject reason is required.");
 
         Status = LoanStatus.Rejected;
         ReviewNote = reviewNote;
+        ReviewedByUserId = financeOfficerId;
+        RejectedAt = DateTimeOffset.UtcNow;
+
         MarkAsUpdated();
     }
 }

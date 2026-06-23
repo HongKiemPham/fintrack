@@ -2,11 +2,13 @@
 
 public abstract class AuditableEntity : BaseEntity
 {
-    public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; protected set; }
+    public DateTimeOffset CreatedAt { get; protected set; }
+        = DateTimeOffset.UtcNow;
 
-    public void MarkAsUpdated()
+    public DateTimeOffset? UpdatedAt { get; protected set; }
+
+    protected void MarkAsUpdated()
     {
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 }
