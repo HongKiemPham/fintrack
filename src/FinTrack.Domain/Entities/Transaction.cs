@@ -12,7 +12,7 @@ public class Transaction : AuditableEntity
         Guid categoryId,
         decimal amount,
         TransactionType type,
-        DateTime transactionDate,
+        DateTimeOffset transactionDate,
         string? note)
     {
         if (userId == Guid.Empty)
@@ -36,10 +36,10 @@ public class Transaction : AuditableEntity
     public Guid CategoryId { get; private set; }
     public decimal Amount { get; private set; }
     public TransactionType Type { get; private set; }
-    public DateTime TransactionDate { get; private set; }
+    public DateTimeOffset TransactionDate { get; private set; }
     public string? Note { get; private set; }
 
-    public void Update(decimal amount, DateTime transactionDate, string? note)
+    public void Update(decimal amount, DateTimeOffset transactionDate, string? note)
     {
         if (amount <= 0)
             throw new ArgumentException("Amount must be greater than zero.");
