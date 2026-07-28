@@ -7,7 +7,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddScoped<CreateTransactionService>();
+        services.AddScoped<CreateTransactionHandler>();
 
         return services;
     }

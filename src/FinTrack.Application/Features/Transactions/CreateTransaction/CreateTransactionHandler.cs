@@ -3,13 +3,13 @@ using FinTrack.Domain.Entities;
 
 namespace FinTrack.Application.Features.Transactions.CreateTransaction;
 
-public class CreateTransactionService
+public class CreateTransactionHandler
 {
     private readonly ICategoryRepository _categoryRepository;
     private readonly ITransactionRepository _transactionRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateTransactionService(
+    public CreateTransactionHandler(
         ICategoryRepository categoryRepository,
         ITransactionRepository transactionRepository,
         IUnitOfWork unitOfWork)
@@ -19,7 +19,7 @@ public class CreateTransactionService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<CreateTransactionResponse> CreateAsync(
+    public async Task<CreateTransactionResponse> HandleAsync(
         CreateTransactionRequest request,
         CancellationToken cancellationToken = default)
     {
