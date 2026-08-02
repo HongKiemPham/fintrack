@@ -41,7 +41,7 @@ public class CreateTransactionHandler
 
         await _transactionRepository.AddAsync(transaction, cancellationToken);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
 
         return new CreateTransactionResponse
         {
