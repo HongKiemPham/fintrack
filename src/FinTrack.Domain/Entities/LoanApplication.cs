@@ -36,7 +36,7 @@ public class LoanApplication : AuditableEntity
         InterestRate = interestRate;
         Purpose = purpose;
         CreditScore = creditScore;
-        Status = LoanStatus.Pending;
+        Status = LoanStatus.Draft;
     }
 
     public Guid UserId { get; private set; }
@@ -51,9 +51,30 @@ public class LoanApplication : AuditableEntity
     public DateTimeOffset? RejectedAt { get; private set; }
     public Guid? ReviewedByUserId { get; private set; }
 
+    public void Submit()
+    {
+        if (Status != LoanStatus.Draft)
+            throw new InvalidOperationException(
+                "Only draft loan can be submitted.");
+
+        Status = LoanStatus.Submitted;
+
+        MarkAsUpdated();
+    }
+    public void StartReview(Guid loanOfficerId)
+    {
+        if (Status != LoanStatus.Submitted)
+            throw new InvalidOperationException(
+                "Only submitted loan can start review.");
+
+        Status = LoanStatus.UnderReview;
+        ReviewedByUserId = loanOfficerId;
+
+        MarkAsUpdated();
+    }
     public void Approve(Guid financeOfficerId, string? reviewNote)
     {
-        if (Status != LoanStatus.Pending)
+        if (Status != LoanStatus.UnderReview)
             throw new InvalidOperationException(
                 "Only pending loan can be approved.");
 
@@ -67,7 +88,7 @@ public class LoanApplication : AuditableEntity
 
     public void Reject(Guid financeOfficerId, string reviewNote)
     {
-        if (Status != LoanStatus.Pending)
+        if (Status != LoanStatus.UnderReview)
             throw new InvalidOperationException(
                 "Only pending loan can be rejected.");
 

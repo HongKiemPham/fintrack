@@ -11,5 +11,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/FinTrack.Api.Tests/FinTrack.Api.Tests.csproj" />
     <Project Path="tests/FinTrack.Application.Tests/FinTrack.Application.Tests.csproj" />
+    <Project Path="tests/FinTrack.Domain.Tests/FinTrack.Domain.Tests.csproj" Id="ed9d994c-3b75-48c3-ad2a-87a5f7e5fbfa" />
   </Folder>
 </Solution>

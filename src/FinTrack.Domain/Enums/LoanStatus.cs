@@ -2,8 +2,14 @@
 
 public enum LoanStatus
 {
-    Pending = 1,
-    Approved = 2,
-    Rejected = 3,
-    Closed = 4
+    Draft = 1,
+    Submitted = 2,
+    UnderReview = 3,
+    Approved = 4,
+    Rejected = 5,
+    Disbursed = 6,
+    Repaying = 7,
+    Completed = 8,
+    Cancelled = 9,
+    Defaulted = 10
 }
