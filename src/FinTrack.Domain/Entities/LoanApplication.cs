@@ -41,6 +41,8 @@ public class LoanApplication : AuditableEntity
 
     public Guid UserId { get; private set; }
     public decimal Amount { get; private set; }
+    private decimal _totalRepaid;
+    public decimal TotalRepaid => _totalRepaid;
     public int TermMonths { get; private set; }
     public decimal InterestRate { get; private set; }
     public string Purpose { get; private set; } = default!;
@@ -72,21 +74,55 @@ public class LoanApplication : AuditableEntity
 
         MarkAsUpdated();
     }
-    public void Approve(Guid financeOfficerId, string? reviewNote)
+    public void Approve(Guid approverId, string? reviewNote)
     {
         if (Status != LoanStatus.UnderReview)
             throw new InvalidOperationException(
-                "Only pending loan can be approved.");
+                "Only loan under review can be approved.");
 
         Status = LoanStatus.Approved;
         ReviewNote = reviewNote;
-        ReviewedByUserId = financeOfficerId;
+        ReviewedByUserId = approverId;
         ApprovedAt = DateTimeOffset.UtcNow;
 
         MarkAsUpdated();
     }
+    public void Disburse()
+    {
+        if (Status != LoanStatus.Approved)
+            throw new InvalidOperationException(
+                "Only approved loan can be disbursed.");
 
-    public void Reject(Guid financeOfficerId, string reviewNote)
+        Status = LoanStatus.Disbursed;
+
+        MarkAsUpdated();
+    }
+    public void RecordRepayment(decimal amount)
+    {
+        if (Status != LoanStatus.Disbursed &&
+            Status != LoanStatus.Repaying)
+            throw new InvalidOperationException(
+                "Only disbursed or repaying loan can receive repayment.");
+
+        if (amount <= 0)
+            throw new ArgumentException(
+                "Repayment amount must be greater than zero.",
+                nameof(amount));
+
+        if (_totalRepaid + amount > Amount)
+            throw new InvalidOperationException(
+                "Total repayment cannot exceed loan amount.");
+
+        _totalRepaid += amount;
+
+        Status = _totalRepaid == Amount
+        ? LoanStatus.Completed
+        : LoanStatus.Repaying;
+
+        MarkAsUpdated();
+    }
+
+    public void Reject(Guid rejectorId, string? reviewNote)
     {
         if (Status != LoanStatus.UnderReview)
             throw new InvalidOperationException(
@@ -98,7 +134,7 @@ public class LoanApplication : AuditableEntity
 
         Status = LoanStatus.Rejected;
         ReviewNote = reviewNote;
-        ReviewedByUserId = financeOfficerId;
+        ReviewedByUserId = rejectorId;
         RejectedAt = DateTimeOffset.UtcNow;
 
         MarkAsUpdated();
