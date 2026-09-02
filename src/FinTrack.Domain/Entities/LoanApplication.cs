@@ -139,4 +139,16 @@ public class LoanApplication : AuditableEntity
 
         MarkAsUpdated();
     }
+
+    public void MarkApprovalCompleted()
+    {
+        if (Status != LoanStatus.UnderReview)
+            throw new InvalidOperationException(
+                "Only loan under review can have completed approval.");
+
+        Status = LoanStatus.Approved;
+
+        MarkAsUpdated();
+    }
+
 }

@@ -146,13 +146,48 @@ namespace FinTrack.Domain.Tests
             act.Should()
                 .Throw<InvalidOperationException>();
         }
+        [Fact]
+        public void MarkApprovalCompleted_Should_Change_Status_To_Approved()
+        {
+            // Arrange
+            var loan = new LoanApplication(
+                Guid.NewGuid(),
+                100_000_000,
+                12,
+                10,
+                "Personal");
 
+            loan.Submit();
+            loan.StartReview(Guid.NewGuid());
 
+            // Act
+            loan.MarkApprovalCompleted();
+
+            // Assert
+            loan.Status.Should().Be(LoanStatus.Approved);
+        }
+        [Fact]
+        public void MarkApprovalCompleted_Should_Throw_When_Loan_Is_Not_UnderReview()
+        {
+            // Arrange
+            var loan = new LoanApplication(
+                Guid.NewGuid(),
+                100_000_000,
+                12,
+                10,
+                "Personal");
+
+            // Act
+            var act = () => loan.MarkApprovalCompleted();
+
+            // Assert
+            act.Should().Throw<InvalidOperationException>();
+        }
 
         #endregion
 
         #region Reject Loan
-        
+
         [Fact]
         public void Reject_Should_Change_Status_To_Rejected()
         {
