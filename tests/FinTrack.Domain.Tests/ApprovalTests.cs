@@ -70,6 +70,25 @@ namespace FinTrack.Domain.Tests
             // Assert
             act.Should().Throw<ArgumentException>();
         }
+
+        [Fact]
+        public void Approve_WhenApprovalIsRejected_ShouldThrowException()
+        {
+            // Arrange
+            var approval = new Approval(requiredApprovals: 2);
+
+            approval.Reject(
+                Guid.NewGuid(),
+                "Risk is too high");
+
+            // Act
+            var act = () => approval.Approve(Guid.NewGuid());
+
+            // Assert
+            act.Should().Throw<InvalidOperationException>();
+
+            approval.Status.Should().Be(ApprovalStatus.Rejected);
+        }
         #endregion
 
         #region Reject
@@ -103,24 +122,23 @@ namespace FinTrack.Domain.Tests
 
             approval.Status.Should().Be(ApprovalStatus.Pending);
         }
-
         [Fact]
-        public void Approve_WhenApprovalIsRejected_ShouldThrowException()
+        public void Reject_Should_Record_Rejection_Information()
         {
             // Arrange
-            var approval = new Approval(requiredApprovals: 2);
-
-            approval.Reject(
-                Guid.NewGuid(),
-                "Risk is too high");
+            var approval = new Approval(2);
+            var rejectorId = Guid.NewGuid();
 
             // Act
-            var act = () => approval.Approve(Guid.NewGuid());
+            approval.Reject(rejectorId, "Risk is too high");
 
             // Assert
-            act.Should().Throw<InvalidOperationException>();
+            var decision = approval.Decisions.Single();
 
-            approval.Status.Should().Be(ApprovalStatus.Rejected);
+            decision.UserId.Should().Be(rejectorId);
+            decision.Decision.Should().Be(
+                ApprovalDecisionType.Rejected);
+            decision.Reason.Should().Be("Risk is too high");
         }
         #endregion
 

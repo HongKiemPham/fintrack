@@ -7,7 +7,10 @@ namespace FinTrack.Domain.Entities
 {
     public class Approval
     {
-        private readonly HashSet<Guid> _approverIds = [];
+        //private readonly HashSet<Guid> _approverIds = [];
+        private readonly List<ApprovalDecision> _decisions = [];
+        public IReadOnlyCollection<ApprovalDecision> Decisions =>
+            _decisions.AsReadOnly();
 
         private Approval()
         {
@@ -28,9 +31,6 @@ namespace FinTrack.Domain.Entities
 
         public ApprovalStatus Status { get; private set; }
 
-        public IReadOnlyCollection<Guid> ApproverIds =>
-            _approverIds;
-
         public void Approve(Guid approverId)
         {
             if (approverId == Guid.Empty)
@@ -38,20 +38,28 @@ namespace FinTrack.Domain.Entities
                     "ApproverId is required.",
                     nameof(approverId));
 
-            if (Status == ApprovalStatus.Approved)
-                throw new InvalidOperationException(
-                    "Approval has already been approved.");
-
             if (Status != ApprovalStatus.Pending)
                 throw new InvalidOperationException(
                     "Only pending approval can be approved.");
 
-            if (!_approverIds.Add(approverId))
+            if (_decisions.Any(x =>
+                x.UserId == approverId &&
+                x.Decision == ApprovalDecisionType.Approved))
                 throw new InvalidOperationException(
                     "The same approver cannot approve twice.");
 
-            if (_approverIds.Count >= RequiredApprovals)
+            _decisions.Add(
+                new ApprovalDecision(
+                    approverId,
+                    ApprovalDecisionType.Approved,
+                    null));
+
+            if (_decisions.Count(x =>
+                    x.Decision == ApprovalDecisionType.Approved)
+                >= RequiredApprovals)
+            {
                 Status = ApprovalStatus.Approved;
+            }
         }
         public void Reject(Guid rejectorId, string? reason)
         {
@@ -68,6 +76,12 @@ namespace FinTrack.Domain.Entities
                 throw new ArgumentException(
                     "Reject reason is required.",
                     nameof(reason));
+
+            _decisions.Add(
+                new ApprovalDecision(
+                    rejectorId,
+                    ApprovalDecisionType.Rejected,
+                    reason));
 
             Status = ApprovalStatus.Rejected;
         }
