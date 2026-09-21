@@ -1,11 +1,12 @@
-﻿using System;
+﻿using FinTrack.Domain.Common;
+using FinTrack.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using FinTrack.Domain.Enums;
 
 namespace FinTrack.Domain.Entities
 {
-    public class Approval
+    public class Approval: AuditableEntity
     {
         //private readonly HashSet<Guid> _approverIds = [];
         private readonly List<ApprovalDecision> _decisions = [];

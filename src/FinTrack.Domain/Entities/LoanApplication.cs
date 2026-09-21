@@ -52,6 +52,7 @@ public class LoanApplication : AuditableEntity
     public DateTimeOffset? ApprovedAt { get; private set; }
     public DateTimeOffset? RejectedAt { get; private set; }
     public Guid? ReviewedByUserId { get; private set; }
+    public Guid? ApprovalId { get; private set; }
 
     public void Submit()
     {
@@ -139,7 +140,6 @@ public class LoanApplication : AuditableEntity
 
         MarkAsUpdated();
     }
-
     public void MarkApprovalCompleted()
     {
         if (Status != LoanStatus.UnderReview)
@@ -150,5 +150,22 @@ public class LoanApplication : AuditableEntity
 
         MarkAsUpdated();
     }
+    public void AttachApproval(Guid approvalId)
+    {
+        if (approvalId == Guid.Empty)
+            throw new ArgumentException(
+                "ApprovalId is required.",
+                nameof(approvalId));
+
+        if (ApprovalId.HasValue)
+            throw new InvalidOperationException(
+                "An approval is already attached to this loan.");
+
+        ApprovalId = approvalId;
+        MarkAsUpdated();
+    }
+
+
+
 
 }

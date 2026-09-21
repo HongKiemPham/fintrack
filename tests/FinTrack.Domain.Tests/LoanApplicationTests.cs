@@ -581,5 +581,73 @@ namespace FinTrack.Domain.Tests
             loan.TotalRepaid.Should().Be(100_000_000);
         }
         #endregion
+
+        [Fact]
+        public void AttachApproval_Should_Set_ApprovalId()
+        {
+            // Arrange
+            var loan = new LoanApplication(
+                Guid.NewGuid(),
+                100_000_000,
+                12,
+                10,
+                "Personal");
+
+            loan.Submit();
+            loan.StartReview(Guid.NewGuid());
+
+            var approvalId = Guid.NewGuid();
+
+            // Act
+            loan.AttachApproval(approvalId);
+
+            // Assert
+            loan.ApprovalId.Should().Be(approvalId);
+        }
+
+        [Fact]
+        public void AttachApproval_Should_Throw_When_ApprovalId_Is_Empty()
+        {
+            // Arrange
+            var loan = new LoanApplication(
+                Guid.NewGuid(),
+                100_000_000,
+                12,
+                10,
+                "Personal");
+
+            loan.Submit();
+            loan.StartReview(Guid.NewGuid());
+
+            // Act
+            var act = () => loan.AttachApproval(Guid.Empty);
+
+            // Assert
+            act.Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
+        public void AttachApproval_Should_Throw_When_Approval_Is_Already_Attached()
+        {
+            // Arrange
+            var loan = new LoanApplication(
+                Guid.NewGuid(),
+                100_000_000,
+                12,
+                10,
+                "Personal");
+
+            loan.Submit();
+            loan.StartReview(Guid.NewGuid());
+
+            loan.AttachApproval(Guid.NewGuid());
+
+            // Act
+            var act = () => loan.AttachApproval(Guid.NewGuid());
+
+            // Assert
+            act.Should().Throw<InvalidOperationException>();
+        }
+
     }
 }

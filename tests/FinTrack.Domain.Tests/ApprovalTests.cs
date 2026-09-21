@@ -9,6 +9,15 @@ namespace FinTrack.Domain.Tests
 {
     public class ApprovalTests
     {
+
+        [Fact]
+        public void Approval_Should_Have_An_Id()
+        {
+            var approval = new Approval(requiredApprovals: 2);
+
+            approval.Id.Should().NotBe(Guid.Empty);
+        }
+
         #region Approve
         [Fact]
         public void Approval_Should_Be_Approved_When_Required_Number_Of_Approvals_Is_Reached()
@@ -142,5 +151,67 @@ namespace FinTrack.Domain.Tests
         }
         #endregion
 
+        [Fact]
+        public async Task Handle_Should_Keep_Loan_UnderReview_When_Approval_Is_Not_Completed()
+        {
+            // Arrange
+            var loanId = Guid.NewGuid();
+            var approverId = Guid.NewGuid();
+
+            var loan = new LoanApplication(
+                Guid.NewGuid(),
+                100_000_000,
+                12,
+                10,
+                "Personal");
+
+            loan.Submit();
+            loan.StartReview(Guid.NewGuid());
+
+            var approval = new Approval(requiredApprovals: 2);
+
+            loan.AttachApproval(approval.Id);
+
+            // TODO:
+            // setup repository mocks
+            // create handler
+
+            // Act
+            // await handler.HandleAsync(...);
+
+            // Assert
+            loan.Status.Should().Be(LoanStatus.UnderReview);
+            approval.Status.Should().Be(ApprovalStatus.Pending);
+        }
+        [Fact]
+        public async Task Handle_Should_Approve_Loan_When_Approval_Is_Completed()
+        {
+            // Arrange
+            var loanId = Guid.NewGuid();
+            var approver1 = Guid.NewGuid();
+            var approver2 = Guid.NewGuid();
+
+            var loan = new LoanApplication(
+                Guid.NewGuid(),
+                100_000_000,
+                12,
+                10,
+                "Personal");
+
+            loan.Submit();
+            loan.StartReview(Guid.NewGuid());
+
+            var approval = new Approval(requiredApprovals: 2);
+
+            loan.AttachApproval(approval.Id);
+
+            // Act
+            // approver1
+            // approver2
+
+            // Assert
+            loan.Status.Should().Be(LoanStatus.Approved);
+            approval.Status.Should().Be(ApprovalStatus.Approved);
+        }
     }
 }
